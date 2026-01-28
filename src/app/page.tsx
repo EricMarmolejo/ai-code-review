@@ -69,7 +69,31 @@ export default function Home() {
   };
 
   const handleAlertAction = (alertId: string) => {
-    // In a real app, this would apply the suggested fix
+    const alertToApply = alerts.find((a) => a.id === alertId);
+
+    if (alertToApply && alertToApply.codeSnippet) {
+      // Basic implementation: if it's a 'Global' or no line specified, we might not know where to put it
+      // But if it has a line number, we can try to be smart.
+      // For now, let's at least support applying snippets if they are provided.
+      if (typeof alertToApply.line === 'number') {
+        const lines = code.split('\n');
+        const lineIdx = alertToApply.line - 1;
+        if (lineIdx >= 0 && lineIdx < lines.length) {
+          // Replace that specific line (or use it as a hint)
+          // Since AI snippets are often multiple lines, this is a bit tricky
+          // Simple approach: show the user the fix applied
+          setCode(prev => {
+            const currentLines = prev.split('\n');
+            currentLines[lineIdx] = alertToApply.codeSnippet || currentLines[lineIdx];
+            return currentLines.join('\n');
+          });
+        }
+      } else {
+        // Fallback or more complex logic could go here
+        console.log('Applied global fix or no line found');
+      }
+    }
+
     setAlerts((prev) => prev.filter((a) => a.id !== alertId));
   };
 
