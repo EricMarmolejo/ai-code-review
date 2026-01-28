@@ -58,30 +58,34 @@ export default function CodeEditor({
     const lines = code.split('\n');
 
     return (
-        <div className="flex flex-col h-full bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+        <div className="flex flex-col h-full bg-[var(--editor-bg)] border border-[var(--editor-border)] rounded-xl overflow-hidden shadow-2xl">
             {/* Editor Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between px-6 py-4 bg-[var(--editor-header-bg)] border-b border-[var(--editor-border)]">
                 <div className="flex items-center gap-3">
-                    <span className="font-bold text-gray-900 text-lg">index.js</span>
+                    <div className="flex gap-1.5 mr-2">
+                        <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                        <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                        <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                    </div>
+                    <span className="font-mono text-sm text-gray-400">index.js</span>
                     {isSafe ? (
-                        <div className="px-3 py-1 bg-green-50 text-green-600 rounded-full text-[11px] font-bold flex items-center gap-1.5 border border-green-100">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                            Safe to Deploy
+                        <div className="px-3 py-1 bg-green-500/10 text-green-400 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-green-500/20">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                            SAFE
                         </div>
                     ) : (
-                        <div className="px-3 py-1 bg-red-50 text-red-600 rounded-full text-[11px] font-bold flex items-center gap-1.5 border border-red-100">
-                            <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                            Vulnerabilities Found
+                        <div className="px-3 py-1 bg-red-500/10 text-red-400 rounded-full text-[10px] font-bold flex items-center gap-1.5 border border-red-500/20">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                            VULNERABLE
                         </div>
                     )}
                 </div>
                 <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-xs font-semibold text-gray-600">
-                        <span className="text-[10px] text-gray-400 uppercase mr-1">Detected:</span>
-                        {language.toUpperCase()}
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                        {language}
                     </div>
-                    <button className="text-gray-400 hover:text-gray-600 transition-colors">
-                        <FiSettings className="w-5 h-5" />
+                    <button className="text-gray-500 hover:text-gray-300 transition-colors">
+                        <FiSettings className="w-4 h-4" />
                     </button>
                 </div>
             </div>
@@ -90,20 +94,20 @@ export default function CodeEditor({
             <div className="flex-1 relative overflow-hidden font-mono text-[14px] leading-relaxed">
                 <div className="absolute inset-0 flex">
                     {/* Line Numbers */}
-                    <div className="flex-shrink-0 py-6 px-4 text-right select-none border-r border-gray-50 bg-white min-w-[3.5rem]">
+                    <div className="flex-shrink-0 py-6 px-4 text-right select-none border-r border-[var(--editor-border)] bg-[var(--editor-gutter)] min-w-[3.5rem]">
                         {lines.map((_, index) => (
-                            <div key={index} className="text-gray-300">
+                            <div key={index} className="text-[var(--editor-line-nr)] text-xs">
                                 {index + 1}
                             </div>
                         ))}
                     </div>
 
                     {/* Content Container */}
-                    <div className="flex-1 relative overflow-hidden">
+                    <div className="flex-1 relative overflow-hidden bg-[var(--editor-bg)]">
                         {/* Highlights (Background) */}
                         <pre
                             ref={preRef}
-                            className="absolute inset-0 py-6 px-8 m-0 pointer-events-none whitespace-pre text-gray-900"
+                            className="absolute inset-0 py-6 px-8 m-0 pointer-events-none whitespace-pre text-gray-300"
                             aria-hidden="true"
                             suppressHydrationWarning
                         >
@@ -120,7 +124,7 @@ export default function CodeEditor({
                             value={code}
                             onChange={(e) => onChange(e.target.value)}
                             onScroll={handleScroll}
-                            className="absolute inset-0 py-6 px-8 w-full h-full resize-none bg-transparent text-transparent caret-blue-500 outline-none whitespace-pre overflow-auto"
+                            className="absolute inset-0 py-6 px-8 w-full h-full resize-none bg-transparent text-transparent caret-blue-400 outline-none whitespace-pre overflow-auto font-mono"
                             spellCheck="false"
                             autoCapitalize="off"
                             autoComplete="off"

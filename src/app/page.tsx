@@ -22,16 +22,7 @@ export const fetchUserData = async (userId) => {
   }
 };`;
 
-const sampleFiles = [
-  { name: 'index.js', type: 'file' as const, active: true },
-  { name: 'utils.js', type: 'file' as const },
-  { name: 'styles.css', type: 'file' as const },
-];
 
-const sampleBranches = [
-  { name: 'feat/auth-service', icon: 'branch' },
-  { name: 'fix/api-headers', icon: 'branch' },
-];
 
 export default function Home() {
   const [code, setCode] = useState(defaultCode);
@@ -66,12 +57,12 @@ export default function Home() {
         throw new Error(data.error || 'Failed to review code');
       }
 
-      const result = await response.json();
-      setMetrics(result.metrics);
-      setAlerts(result.alerts);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Review error:', err);
+      const analysisResults = await response.json();
+      setMetrics(analysisResults.metrics);
+      setAlerts(analysisResults.alerts);
+    } catch (reviewError) {
+      setError(reviewError instanceof Error ? reviewError.message : 'An error occurred');
+      console.error('Review error:', reviewError);
     } finally {
       setIsLoading(false);
     }
@@ -92,69 +83,82 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 text-gray-900 font-sans">
+    <div className="min-h-screen flex flex-col bg-[#fdfdfd] text-gray-900 font-sans">
       {/* Header */}
       <Header onReviewClick={handleReviewCode} isLoading={isLoading} />
 
-      {/* Main Content: 2-Column Grid */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] overflow-hidden">
+      {/* Main Content */}
+      <main className="flex-1 max-w-[1600px] mx-auto w-full p-4 lg:p-8 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
 
-        {/* Left Column: Review Session */}
-        <section className="flex flex-col border-r border-gray-100 overflow-hidden bg-white">
-          <div className="p-10 pb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h1 className="text-3xl font-black tracking-tight text-gray-900">Review Session</h1>
-              <button
-                onClick={handleReviewCode}
-                disabled={isLoading}
-                className="btn-primary flex items-center gap-3 px-8 py-3.5 rounded-2xl font-black transition-all disabled:opacity-50 disabled:pointer-events-none"
-              >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                )}
-                <span className="text-[11px] uppercase tracking-[0.2em]">Analyze Code</span>
-              </button>
+          {/* Left Column: Editor & Controls */}
+          <section className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6 h-full overflow-hidden">
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-4xl font-black tracking-tight text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-500">
+                    Review Session
+                  </h1>
+                  <p className="text-sm text-gray-400 font-medium mt-1">
+                    Secure your code with real-time AI security audits.
+                  </p>
+                </div>
+                <button
+                  onClick={handleReviewCode}
+                  disabled={isLoading}
+                  className="btn-primary group relative overflow-hidden flex items-center gap-3 px-8 py-4 rounded-2xl font-black transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative flex items-center gap-3">
+                    {isLoading ? (
+                      <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <svg className="w-5 h-5 transform group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                    )}
+                    <span className="text-[11px] uppercase tracking-[0.2em] font-bold">Analyze Code</span>
+                  </div>
+                </button>
+              </div>
             </div>
-            <p className="text-[14px] text-gray-400 font-medium max-w-lg leading-relaxed">
-              Upload your source code to perform an automated AI security audit and performance analysis in real-time.
-            </p>
-          </div>
 
-          <main className="flex-1 p-10 pt-4 overflow-hidden flex flex-col gap-6">
             {error && (
-              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-[13px] font-bold animate-fadeIn flex items-center gap-3">
-                <span className="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center">!</span>
-                <span><strong>Error:</strong> {error}</span>
+              <div className="p-4 bg-red-50 border border-red-100 rounded-2xl text-red-600 text-sm font-bold flex items-center gap-3 animate-fadeIn">
+                <div className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <span>{error}</span>
               </div>
             )}
 
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-[500px] lg:min-h-0 bg-white rounded-3xl p-1 shadow-sm border border-gray-100">
               <CodeEditor
                 code={code}
                 onChange={setCode}
                 isSafe={alerts.length === 0 && !isLoading && metrics.safety === 'High'}
               />
             </div>
-          </main>
-        </section>
+          </section>
 
-        {/* Right Column: Analysis Results */}
-        <section className="overflow-hidden">
-          <AIPanel
-            metrics={metrics}
-            alerts={alerts}
-            alertCount={alerts.length}
-            isLoading={isLoading}
-            onAlertAction={handleAlertAction}
-            onAlertIgnore={handleAlertIgnore}
-            onGenerateReport={handleGenerateReport}
-          />
-        </section>
-      </div>
+          {/* Right Column: AI Results */}
+          <section className="lg:col-span-5 xl:col-span-4 h-full overflow-hidden">
+            <div className="h-full bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+              <AIPanel
+                metrics={metrics}
+                alerts={alerts}
+                alertCount={alerts.length}
+                isLoading={isLoading}
+                onAlertAction={handleAlertAction}
+                onAlertIgnore={handleAlertIgnore}
+                onGenerateReport={handleGenerateReport}
+              />
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
   );
 }
